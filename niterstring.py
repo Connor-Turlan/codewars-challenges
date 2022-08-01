@@ -66,11 +66,10 @@ def jumbled_string(s, n):
     i = 0   
     while i < n:
         # shift odd chars to the start of the string, even to the end.
-        halves = ['', '']
-        for j, char in enumerate(s):
-            halves[j%2] += char
         halves = [s[i] for i in range(0, len(s), 2)] + ([s[i] for i in range(1, len(s), 2)])
         s = ''.join(halves)
+
+        s = s[::2] + s[1::2]
         
         # check if the current string is in the history.
         i += 1
