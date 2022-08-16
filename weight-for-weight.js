@@ -1,11 +1,10 @@
-function sumDigits(n) {
-	return n.split("").reduce((sum, d) => sum + parseInt(d), 0);
-}
+const sumDigits = (n) => n.split("").reduce((sum, d) => sum + parseInt(d), 0);
 
-function numberWeightSort(a, b) {
-	return sumDigits(a) - sumDigits(b);
-}
+const weightSort = (a, b) => {
+	const [A, B] = [sumDigits(a), sumDigits(b)];
+	return A === B ? a.localeCompare(b) : A - B;
+};
 
 function orderWeight(s) {
-	return s.split(" ").sort().sort(numberWeightSort).join(" ");
+	return s.split(" ").sort(weightSort).join(" ");
 }
