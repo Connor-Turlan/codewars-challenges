@@ -1,63 +1,3 @@
-""" class SudokuSolver():
-    def __init__(self, puzzle):
-        self.puzzle = puzzle
-
-    def used_in_row(self, row, num):
-        for col in range(9):
-            if self.get_puzzle_value(row, col) == num:
-                return True
-        return False
-
-    def used_in_col(self, col, num):
-        for row in range(9):
-            if self.get_puzzle_value(row, col) == num:
-                return True
-        return False
-
-    def used_in_box(self, x, y, num):
-        for row in range(3):
-            for col in range(3):
-                if self.get_puzzle_value(x*3+col, y*3+row) == num:
-                    return True
-        return False
-
-    def is_safe(self, row, col, num):
-        urow = self.used_in_row(row, num)
-        ucol = self.used_in_col(col, num)
-        ubox = self.used_in_box(row//3, col//3, num)
-        return not urow and not ucol and not ubox
-
-    def get_unassigned_location(self):
-        for i in range(9):
-            for j in range(9):
-                if self.get_puzzle_value(i, j) == 0:
-                    return i, j
-        return 9, 9
-
-    def get_puzzle_value(self, row, col):
-        return int(self.puzzle[row][col])
-
-    def set_puzzle_value(self, row, col, value):
-        self.puzzle[row][col]  = value
-
-    def solve_sudoku(self):
-        row, col = self.get_unassigned_location()
-
-        if row == 9 and col == 9:
-            return True
-
-        for i in range(1, 10):
-            if self.is_safe(row, col, i):
-                self.set_puzzle_value(row, col, i)
-                if self.solve_sudoku():
-                    return True, self.puzzle
-
-        self.set_puzzle_value(row, col, 0)
-        return False, self.puzzle """
-
-from re import L
-
-
 def getRowAndColIndex(box, cell):
     return (
         (box // 3 * 27 + box % 3) +
@@ -110,20 +50,34 @@ def getUnassignedLocation(puzzle):
 
 
 
-def solve_sudoku(puzzle):
+def _filter_sudoku(puzzle, filter):
+    for row in range(9):
+        for col in range(9):
+            if puzzle[row][col] != 0: continue
+            
+            for i in range(1, 10):
+                if isSafe(puzzle, row, col, i):
+                    filter[row][col].append(i)
+    
+    return filter
+
+def filter_sudoku(puzzle):
+    FILTER = [[[] for i in range(9)] for j in range(9)]
+    _filter_sudoku(puzzle, FILTER)
+    return FILTER
+
+def solve_sudoku(puzzle, filter):
     # get the next free cell.
     row, col = getUnassignedLocation(puzzle)
 
     # if the cell is 9,9 the sudoku is solved.
-    if (row == 9 and col == 9): 
-        return True
+    if (row == 9 and col == 9): return True
 
     # try insert 1 thru 9.
-    for i in range(1, 10):
+    for i in filter[row][col]:
         if isSafe(puzzle, row, col, i):
             puzzle[row][col] = i
-            if solve_sudoku(puzzle): 
-                return True
+            if solve_sudoku(puzzle, filter): return True
 
     # if we can't insert a number, the current solve is wrong. reset the cell.
     puzzle[row][col] = 0
@@ -131,11 +85,17 @@ def solve_sudoku(puzzle):
 
 
 
-def sudoku_solver(puzzle):
-	Solver = solve_sudoku(puzzle)
-	solved = Solver.solve_sudoku()
-	print(solved)
-	return Solver.puzzle
+def sudoku_solver(PUZZLE):
+    # validate the puzzle
+    if len(PUZZLE) != 9: return False
+    if False in [len(row) == 9 for row in PUZZLE]: return False
+
+    FILTER =filter_sudoku(PUZZLE)
+    solved = solve_sudoku(PUZZLE, FILTER)
+    print("filter:")
+    [print(row) for row in FILTER]
+    print("solved:", solved)
+    return PUZZLE
 
 
 def test(puzzle):
@@ -171,20 +131,20 @@ if __name__ == "__main__":
         ]
 
     PUZZLE = [
-		[0, 4, 0, 2, 0, 1, 0, 6, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[9, 0, 5, 0, 0, 0, 3, 0, 7],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[5, 0, 7, 0, 8, 0, 1, 0, 4],
-		[0, 1, 0, 0, 0, 0, 0, 9, 0],
-		[0, 0, 1, 0, 0, 0, 6, 0, 0],
-		[0, 0, 0, 7, 0, 5, 0, 0, 0],
-		[6, 0, 8, 9, 0, 4, 5, 0, 3]
-	]
+        [0, 4, 0, 2, 0, 1, 0, 6, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [9, 0, 5, 0, 0, 0, 3, 0, 7],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 7, 0, 8, 0, 1, 0, 4],
+        [0, 1, 0, 0, 0, 0, 0, 9, 0],
+        [0, 0, 1, 0, 0, 0, 6, 0, 0],
+        [0, 0, 0, 7, 0, 5, 0, 0, 0],
+        [6, 0, 8, 9, 0, 4, 5, 0, 3]
+    ]
     
     test(PUZZLE)
 
-    status = solve_sudoku(PUZZLE)
-
-    print('solved:', status)
+    print("Puzzle")
+    [print(row) for row in PUZZLE]
+    sudoku_solver(PUZZLE)
     [print(row) for row in PUZZLE]
