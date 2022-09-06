@@ -51,6 +51,7 @@ def getUnassignedLocation(puzzle):
 
 
 def _filter_sudoku(puzzle, filter):
+    changed = False;
     for row in range(9):
         for col in range(9):
             if puzzle[row][col] != 0: continue
@@ -58,12 +59,21 @@ def _filter_sudoku(puzzle, filter):
             for i in range(1, 10):
                 if isSafe(puzzle, row, col, i):
                     filter[row][col].append(i)
+            
+            if len(filter[row][col]) == 1:
+                changed = True
+                puzzle[row][col] = filter[row][col][0]
+                filter[row][col] = []
     
-    return filter
+    return changed, filter
 
-def filter_sudoku(puzzle):
+def filter_sudoku(PUZZLE):
     FILTER = [[[] for i in range(9)] for j in range(9)]
-    _filter_sudoku(puzzle, FILTER)
+    changed, filter = _filter_sudoku(PUZZLE, FILTER)
+    while changed:
+        FILTER = [[[] for i in range(9)] for j in range(9)]
+        changed, filter = _filter_sudoku(PUZZLE, FILTER)
+    
     return FILTER
 
 def solve_sudoku(puzzle, filter):
@@ -85,16 +95,24 @@ def solve_sudoku(puzzle, filter):
 
 
 
+def validate(puzzle):
+    if len(puzzle) != 9: return False
+    if False in [len(row) == 9 for row in puzzle]: return False
+    
+    if max([row.count(i) for row in puzzle for i in range(1, 10)]) > 1: return False
+    if max([getPuzzleCol(puzzle, col).count(i) for col in range(9) for i in range(1, 10)]) > 1: return False
+    if max([getPuzzleBox(puzzle, box % 3, box // 3).count(i) for box in range(9) for i in range(1, 10)]) > 1: return False
+
+    return True
+
+
+
 def sudoku_solver(PUZZLE):
     # validate the puzzle
-    if len(PUZZLE) != 9: return False
-    if False in [len(row) == 9 for row in PUZZLE]: return False
+    if not validate(PUZZLE): return PUZZLE
 
-    FILTER =filter_sudoku(PUZZLE)
+    FILTER = filter_sudoku(PUZZLE)
     solved = solve_sudoku(PUZZLE, FILTER)
-    print("filter:")
-    [print(row) for row in FILTER]
-    print("solved:", solved)
     return PUZZLE
 
 
@@ -131,7 +149,7 @@ if __name__ == "__main__":
         ]
 
     PUZZLE = [
-        [0, 4, 0, 2, 0, 1, 0, 6, 0],
+        [1, 4, 0, 2, 0, 1, 0, 6, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [9, 0, 5, 0, 0, 0, 3, 0, 7],
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
