@@ -37,12 +37,22 @@ def sign(n):
 def cc_rotation(array):
 	return [[row[i] for row in array] for i in range(len(array[0])-1, -1, -1)] if array else []
 
-def snail(snail_map):
+def snail_old(snail_map):
 	output = []
 	while snail_map:
 		output.extend(snail_map.pop(0))
 		snail_map = cc_rotation(snail_map)
 	return output;
+
+""" def snail(array):
+	print(array, len(array), len(array) <= 1)
+	output = array.pop(0)
+	print(output, array)
+	return output.extend(snail(cc_rotation(array))) if len(array) <= 1 else array """
+
+def snail(arr):
+	if len(arr) > 1: arr[0].extend(snail(cc_rotation(arr[1:]))) 
+	return arr[0]
 
 
 smol = [[1, 2, 3], 
