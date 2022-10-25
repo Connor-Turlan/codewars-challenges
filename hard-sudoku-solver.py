@@ -1,3 +1,5 @@
+import random 
+
 def getRowAndColIndex(box, cell):
     return (
         (box // 3 * 27 + box % 3) +
@@ -56,10 +58,10 @@ def _filter_sudoku(puzzle, filter):
         for col in range(9):
             if puzzle[row][col] != 0: continue
             
-            for i in range(1, 10):
+            for i in range(9, 0, -1):
                 if isSafe(puzzle, row, col, i):
                     filter[row][col].append(i)
-            
+
             if len(filter[row][col]) == 1:
                 changed = True
                 puzzle[row][col] = filter[row][col][0]
@@ -96,9 +98,11 @@ def solve_sudoku(puzzle, filter):
 
 
 def validate(puzzle):
+    # check sizes.
     if len(puzzle) != 9: return False
     if False in [len(row) == 9 for row in puzzle]: return False
     
+    # check counts.
     if max([row.count(i) for row in puzzle for i in range(1, 10)]) > 1: return False
     if max([getPuzzleCol(puzzle, col).count(i) for col in range(9) for i in range(1, 10)]) > 1: return False
     if max([getPuzzleBox(puzzle, box % 3, box // 3).count(i) for box in range(9) for i in range(1, 10)]) > 1: return False
@@ -109,7 +113,7 @@ def validate(puzzle):
 
 def sudoku_solver(PUZZLE):
     # validate the puzzle
-    if not validate(PUZZLE): return PUZZLE
+    if not validate(PUZZLE): return False
 
     FILTER = filter_sudoku(PUZZLE)
     solved = solve_sudoku(PUZZLE, FILTER)
@@ -132,6 +136,11 @@ def test(puzzle):
         for j in range(3):
             print(getPuzzleBox(puzzle, j, i))
 
+def cc_rotation(array):
+	return [[row[i] for row in array] for i in range(len(array[0])-1, -1, -1)] if array else []
+
+def cw_rotation(array):
+	return [[row[i] for row in array] for i in range(len(array[0]))] if array else []
 
 if __name__ == "__main__":
     print("Hello, World!")
@@ -159,10 +168,23 @@ if __name__ == "__main__":
         [0, 0, 0, 7, 0, 5, 0, 0, 0],
         [6, 0, 8, 9, 0, 4, 5, 0, 3]
     ]
+
+    PUZZLE = [
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,3,0,8,5],
+        [0,0,1,0,2,0,0,0,0],
+        [0,0,0,5,0,7,0,0,0],
+        [0,0,4,0,0,0,1,0,0],
+        [0,9,0,0,0,0,0,0,0],
+        [5,0,0,0,0,0,0,7,3],
+        [0,0,2,0,1,0,0,0,0],
+        [0,0,0,0,4,0,0,0,9]
+    ]
     
-    test(PUZZLE)
+    """ test(PUZZLE) """
 
     print("Puzzle")
     [print(row) for row in PUZZLE]
     sudoku_solver(PUZZLE)
+    print('Solution')
     [print(row) for row in PUZZLE]
